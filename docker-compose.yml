@@ -1,0 +1,77 @@
+services:
+  metabase:
+    image: metabase/metabase-enterprise:v1.53.1
+    container_name: metabase
+    hostname: metabase
+    ports:
+      - 3000:3000
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xmx1536m"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2048M
+        reservations:
+          cpus: '1'
+          memory: 2048M
+    networks: 
+      - metanet
+    healthcheck:
+      test: curl --fail -X GET -I http://localhost:3000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      postgres-data1:
+        condition: service_healthy
+  setup:
+    image: python:3-alpine
+    container_name: setup
+    volumes:
+      - $PWD/setup/:/app/
+    networks:
+      - metanet
+    depends_on:
+      metabase:
+        condition: service_healthy
+    command: sh -c "pip install --disable-pip-version-check -r /app/requirements.txt && python /app/setup.py"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 64M
+        reservations:
+          cpus: '0.5'
+          memory: 32M
+    environment:
+      host: http://metabase
+      port: 3000
+      # Change this to your own database connection string
+      connection_string: "postgres://metabase:metasample123@postgres-data1:5432/sample"
+      table: Orders
+  # Remove this service if you are using your own database
+  postgres-data1:
+    image:  metabase/qa-databases:postgres-sample-12
+    container_name: postgres-data1
+    hostname: postgres-data1
+    networks: 
+      - metanet
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          cpus: '1'
+          memory: 1024M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metabase -d sample"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    command: -c log_statement=all
+
+networks: 
+  metanet:
+    driver: bridge

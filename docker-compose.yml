@@ -1,6 +1,10 @@
 services:
   metabase:
-    image: metabase/metabase-enterprise:v1.53.1
+    build:
+      dockerfile: $PWD/runner/Dockerfile
+      context: $PWD/runner/
+      args:
+        version: v1.53.1
     container_name: metabase
     hostname: metabase
     ports:
@@ -10,10 +14,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '2'
           memory: 2048M
         reservations:
-          cpus: '1'
+          cpus: '2'
           memory: 2048M
     networks: 
       - metanet

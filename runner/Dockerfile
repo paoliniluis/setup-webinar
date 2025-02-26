@@ -5,8 +5,6 @@ ARG version
 
 WORKDIR /app/
 
-ADD ./run_metabase.sh .
-
 RUN apt-get update && \
   apt-get upgrade -y && \
   # I'm removing the noto fonts on purpose
@@ -18,11 +16,10 @@ RUN apt-get update && \
   mkdir -p /plugins && chmod a+rwx /plugins && \
   keytool -list -cacerts && \
   curl https://downloads.metabase.com/enterprise/${version}/metabase.jar -o metabase.jar && \
-  chmod +x run_metabase.sh && \
   chmod -R a+rwX /app/
 
 # expose our default runtime port
 EXPOSE 3000
 
 # run it
-ENTRYPOINT ["/app/run_metabase.sh"]
+ENTRYPOINT ["java", "-jar", "metabase.jar"]

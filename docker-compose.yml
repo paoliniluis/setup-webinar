@@ -1,10 +1,9 @@
 services:
   metabase:
     build:
-      dockerfile: $PWD/runner/Dockerfile
-      context: $PWD/runner/
+      dockerfile: ./runner/Dockerfile
       args:
-        version: v1.53.1
+        version: v1.53.3
     container_name: metabase
     hostname: metabase
     ports:
@@ -33,7 +32,7 @@ services:
     image: python:3-alpine
     container_name: setup
     volumes:
-      - $PWD/setup/:/app/
+      - ./setup/:/app/
     networks:
       - metanet
     depends_on:

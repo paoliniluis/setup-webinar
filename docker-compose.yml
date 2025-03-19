@@ -45,6 +45,7 @@ services:
           cpus: '0.5'
           memory: 32M
     environment:
+      PGPASSWORD: metasample123
       host: http://metabase
       port: 3000
       # Change this to your own database connection string

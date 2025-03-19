@@ -1,9 +1,6 @@
 services:
   metabase:
-    build:
-      dockerfile: ./runner/Dockerfile
-      args:
-        version: v1.53.3
+    image: metabase/metabase:v0.53.7.1
     container_name: metabase
     hostname: metabase
     ports:
@@ -38,7 +35,7 @@ services:
     depends_on:
       metabase:
         condition: service_healthy
-    command: sh -c "pip install --disable-pip-version-check -r /app/requirements.txt && python /app/setup.py"
+    command: sh -c "apk add postgresql-client && pg_restore -w --user metabase -h postgres-data1 -d sample -j 8 /app/sample.gz && pip install --disable-pip-version-check -r /app/requirements.txt && python /app/setup.py"
     deploy:
       resources:
         limits:
@@ -55,25 +52,30 @@ services:
       table: Orders
   # Remove this service if you are using your own database
   postgres-data1:
-    image:  metabase/qa-databases:postgres-sample-12
+    image: postgres:17-alpine
     container_name: postgres-data1
     hostname: postgres-data1
+    environment:
+      POSTGRES_USER: metabase
+      POSTGRES_DB: sample
+      POSTGRES_PASSWORD: metasample123
     networks: 
       - metanet
+    ports:
+      - 5433:5432
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '2'
           memory: 1024M
         reservations:
-          cpus: '1'
+          cpus: '2'
           memory: 1024M
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U metabase -d sample"]
       interval: 5s
       timeout: 5s
       retries: 3
-    command: -c log_statement=all
 
 networks: 
   metanet:

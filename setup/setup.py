@@ -129,8 +129,6 @@ if health() == 'healthy' and database.drivername in supported_dbs:
                 }
                 dashboard = session.post(f'{host}:{port}/api/dashboard/save', verify=False, json=dashboard_payload)
                 dashboard = dashboard.json()['id']
-                session.put(f'{host}:{port}/api/dashboard/{dashboard}', verify=False, json={'enable_embedding':True})
-                session.put(f'{host}:{port}/api/card/4', verify=False, json={'enable_embedding':True})
 
     except Exception as e:
         print(e)

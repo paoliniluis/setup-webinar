@@ -1,6 +1,6 @@
 services:
   metabase:
-    image: metabase/metabase:v0.53.7.1
+    image: metabase/metabase:v0.54.1
     container_name: metabase
     hostname: metabase
     ports:
